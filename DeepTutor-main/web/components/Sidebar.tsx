@@ -25,8 +25,10 @@ import {
   Check,
   X,
   LucideIcon,
+  LogOut,
 } from "lucide-react";
 import { useGlobal } from "@/context/GlobalContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const SIDEBAR_EXPANDED_WIDTH = 256;
 const SIDEBAR_COLLAPSED_WIDTH = 64;
@@ -63,6 +65,7 @@ export default function Sidebar() {
     setSidebarNavOrder,
   } = useGlobal();
   const { t } = useTranslation();
+  const { logout, isAuthenticated } = useAuth();
 
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
@@ -78,6 +81,9 @@ export default function Sidebar() {
   const [dragGroup, setDragGroup] = useState<"start" | "learnResearch" | null>(
     null,
   );
+
+  // Don't show sidebar if not authenticated or on login page
+  if (!isAuthenticated || pathname === "/login") return null;
 
   // Build navigation items from saved order - defined inside useMemo to properly capture dependencies
   const navGroups = useMemo(() => {
@@ -217,9 +223,8 @@ export default function Sidebar() {
     >
       {/* Header */}
       <div
-        className={`border-b border-slate-100 dark:border-slate-700 transition-all duration-300 ${
-          sidebarCollapsed ? "px-2 py-3" : "px-4 py-3"
-        }`}
+        className={`border-b border-slate-100 dark:border-slate-700 transition-all duration-300 ${sidebarCollapsed ? "px-2 py-3" : "px-4 py-3"
+          }`}
       >
         <div className="flex flex-col gap-2">
           <div
@@ -237,21 +242,19 @@ export default function Sidebar() {
                 />
               </div>
               <h1
-                className={`font-bold text-slate-900 dark:text-slate-100 tracking-tight text-base whitespace-nowrap transition-all duration-300 ${
-                  sidebarCollapsed
+                className={`font-bold text-slate-900 dark:text-slate-100 tracking-tight text-base whitespace-nowrap transition-all duration-300 ${sidebarCollapsed
                     ? "opacity-0 w-0 overflow-hidden"
                     : "opacity-100"
-                }`}
+                  }`}
               >
                 DeepTutor
               </h1>
             </div>
             <div
-              className={`flex items-center gap-0.5 transition-all duration-300 ${
-                sidebarCollapsed
+              className={`flex items-center gap-0.5 transition-all duration-300 ${sidebarCollapsed
                   ? "opacity-0 w-0 overflow-hidden"
                   : "opacity-100"
-              }`}
+                }`}
             >
               {/* Collapse button */}
               <button
@@ -284,9 +287,8 @@ export default function Sidebar() {
 
           {/* Editable Description - only show when expanded */}
           <div
-            className={`transition-all duration-300 ${
-              sidebarCollapsed ? "opacity-0 h-0 overflow-hidden" : "opacity-100"
-            }`}
+            className={`transition-all duration-300 ${sidebarCollapsed ? "opacity-0 h-0 overflow-hidden" : "opacity-100"
+              }`}
           >
             {isEditingDescription ? (
               <div className="flex items-center gap-1">
@@ -332,19 +334,17 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav
-        className={`flex-1 overflow-y-auto py-2 space-y-4 transition-all duration-300 ${
-          sidebarCollapsed ? "px-2" : "px-2"
-        }`}
+        className={`flex-1 overflow-y-auto py-2 space-y-4 transition-all duration-300 ${sidebarCollapsed ? "px-2" : "px-2"
+          }`}
       >
         {navGroups.map((group, idx) => (
           <div key={group.id}>
             {/* Group title - only show when expanded */}
             <div
-              className={`text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 truncate transition-all duration-300 ${
-                sidebarCollapsed
+              className={`text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 truncate transition-all duration-300 ${sidebarCollapsed
                   ? "opacity-0 h-0 overflow-hidden px-0"
                   : "opacity-100 px-1"
-              }`}
+                }`}
             >
               {group.name}
             </div>
@@ -372,49 +372,43 @@ export default function Sidebar() {
                       !sidebarCollapsed && handleDrop(e, item.href, group.id)
                     }
                     onDragEnd={handleDragEnd}
-                    className={`group relative ${isDragging ? "opacity-50" : ""} ${
-                      isDragOver ? "border-t-2 border-blue-500" : ""
-                    }`}
+                    className={`group relative ${isDragging ? "opacity-50" : ""} ${isDragOver ? "border-t-2 border-blue-500" : ""
+                      }`}
                   >
                     <Link
                       href={item.href}
-                      className={`flex items-center rounded-md border transition-all duration-200 ${
-                        sidebarCollapsed
+                      className={`flex items-center rounded-md border transition-all duration-200 ${sidebarCollapsed
                           ? "justify-center p-2"
                           : "gap-2.5 pl-2 pr-1.5 py-2"
-                      } ${
-                        isActive
+                        } ${isActive
                           ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm border-slate-100 dark:border-slate-600"
                           : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-sm border-transparent hover:border-slate-100 dark:hover:border-slate-600"
-                      }`}
+                        }`}
                       onMouseEnter={() =>
                         sidebarCollapsed && setShowTooltip(item.href)
                       }
                       onMouseLeave={() => setShowTooltip(null)}
                     >
                       <item.icon
-                        className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                          isActive
+                        className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive
                             ? "text-blue-500 dark:text-blue-400"
                             : "text-slate-400 dark:text-slate-500 group-hover:text-blue-500 dark:group-hover:text-blue-400"
-                        }`}
+                          }`}
                       />
                       <span
-                        className={`font-medium text-sm whitespace-nowrap flex-1 transition-all duration-300 ${
-                          sidebarCollapsed
+                        className={`font-medium text-sm whitespace-nowrap flex-1 transition-all duration-300 ${sidebarCollapsed
                             ? "opacity-0 w-0 overflow-hidden"
                             : "opacity-100"
-                        }`}
+                          }`}
                       >
                         {item.name}
                       </span>
                       {/* Drag handle - only show when expanded and hovering, now on right */}
                       <div
-                        className={`flex-shrink-0 transition-all duration-300 ${
-                          sidebarCollapsed
+                        className={`flex-shrink-0 transition-all duration-300 ${sidebarCollapsed
                             ? "w-0 opacity-0 overflow-hidden"
                             : "opacity-0 group-hover:opacity-100"
-                        }`}
+                          }`}
                       >
                         <GripVertical className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 cursor-grab active:cursor-grabbing" />
                       </div>
@@ -440,57 +434,64 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div
-        className={`border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/30 transition-all duration-300 ${
-          sidebarCollapsed ? "px-2 py-2" : "px-2 py-2"
-        }`}
+        className={`border-t border-slate-100 dark:border-slate-700 bg-slate-50/30 dark:bg-slate-800/30 transition-all duration-300 ${sidebarCollapsed ? "px-2 py-2" : "px-2 py-2"
+          }`}
       >
-        <div className="relative">
+        <div className="relative space-y-1">
           <Link
             href="/settings"
-            className={`flex items-center rounded-md text-sm transition-all duration-200 ${
-              sidebarCollapsed
+            className={`flex items-center rounded-md text-sm transition-all duration-200 ${sidebarCollapsed
                 ? "justify-center p-2"
                 : "gap-2.5 pl-2 pr-1.5 py-2"
-            } ${
-              pathname === "/settings"
+              } ${pathname === "/settings"
                 ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-100 dark:border-slate-600"
                 : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100"
-            }`}
+              }`}
             onMouseEnter={() => sidebarCollapsed && setShowTooltip("/settings")}
             onMouseLeave={() => setShowTooltip(null)}
           >
             <Settings
-              className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                pathname === "/settings"
+              className={`w-5 h-5 flex-shrink-0 transition-colors ${pathname === "/settings"
                   ? "text-blue-500 dark:text-blue-400"
                   : "text-slate-400 dark:text-slate-500"
-              }`}
+                }`}
             />
             <span
-              className={`whitespace-nowrap flex-1 transition-all duration-300 ${
-                sidebarCollapsed
+              className={`whitespace-nowrap flex-1 transition-all duration-300 ${sidebarCollapsed
                   ? "opacity-0 w-0 overflow-hidden"
                   : "opacity-100"
-              }`}
+                }`}
             >
               {t("Settings")}
             </span>
           </Link>
-          {/* Tooltip for collapsed state */}
-          {sidebarCollapsed && showTooltip === "/settings" && (
-            <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
-              {t("Settings")}
-              <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-900 dark:border-r-slate-700" />
-            </div>
-          )}
+
+          {/* Logout Button */}
+          <button
+            onClick={logout}
+            className={`w-full flex items-center rounded-md text-sm transition-all duration-200 ${sidebarCollapsed
+                ? "justify-center p-2"
+                : "gap-2.5 pl-2 pr-1.5 py-2"
+              } text-red-500 hover:bg-white dark:hover:bg-slate-700 hover:text-red-600 dark:hover:text-red-400`}
+            title={t("Logout")}
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0" />
+            <span
+              className={`whitespace-nowrap flex-1 text-left transition-all duration-300 ${sidebarCollapsed
+                  ? "opacity-0 w-0 overflow-hidden"
+                  : "opacity-100"
+                }`}
+            >
+              {t("Logout")}
+            </span>
+          </button>
         </div>
 
         {/* Expand/Collapse button at bottom */}
         <button
           onClick={toggleSidebar}
-          className={`w-full mt-2 flex items-center rounded-md text-slate-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-700 hover:text-blue-500 dark:hover:text-blue-400 hover:shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-600 transition-all duration-200 ${
-            sidebarCollapsed ? "justify-center p-2" : "gap-2.5 pl-2 pr-1.5 py-2"
-          }`}
+          className={`w-full mt-2 flex items-center rounded-md text-slate-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-700 hover:text-blue-500 dark:hover:text-blue-400 hover:shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-600 transition-all duration-200 ${sidebarCollapsed ? "justify-center p-2" : "gap-2.5 pl-2 pr-1.5 py-2"
+            }`}
           title={sidebarCollapsed ? t("Expand sidebar") : t("Collapse sidebar")}
         >
           <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
@@ -501,9 +502,8 @@ export default function Sidebar() {
             )}
           </div>
           <span
-            className={`text-sm whitespace-nowrap flex-1 transition-all duration-300 ${
-              sidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
-            }`}
+            className={`text-sm whitespace-nowrap flex-1 transition-all duration-300 ${sidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
+              }`}
           >
             {t("Collapse sidebar")}
           </span>

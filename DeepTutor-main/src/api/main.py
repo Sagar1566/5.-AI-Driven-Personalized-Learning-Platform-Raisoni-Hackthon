@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from src.api.routers import (
     agent_config,
+    auth,
     chat,
     co_writer,
     config,
@@ -187,6 +188,7 @@ except Exception:
 app.mount("/api/outputs", StaticFiles(directory=str(user_dir)), name="outputs")
 
 # Include routers
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(solve.router, prefix="/api/v1", tags=["solve"])
 app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
 app.include_router(question.router, prefix="/api/v1/question", tags=["question"])
